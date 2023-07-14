@@ -66,7 +66,7 @@ const Form = () => {
         if (loggedIn) {
             dispatch(
                 setLogin({
-                    user:loggedIn.user,
+                    user: loggedIn.user,
                     token: loggedIn.token,
                 })
             );
@@ -98,7 +98,7 @@ const Form = () => {
 
     const handleFormSubmit = async (values, onSubmitProps) => {
         if (isLogin) await login(values, onSubmitProps);
-        if (isRegister) await registerSchema(values, onSubmitProps);
+        if (isRegister) await register(values, onSubmitProps);
     }
 
     return (
@@ -115,13 +115,13 @@ const Form = () => {
                 handleChange,
                 handleSubmit,
                 setFieldValue,
-                resetForm
-            }) => {
+                resetForm,
+            }) => (
                 <form onSubmit={handleSubmit}>
                     <Box
                         display="grid"
                         gap="30px"
-                        gridTemplateColumn="repeat(4,minmax(0,1fr)"
+                        gridtemplatecolumn="repeat(4,minmax(0,1fr)"
                         sx={{
                             "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                         }}
@@ -179,15 +179,16 @@ const Form = () => {
                                         multiple={false}
                                         onDrop={(acceptedFiles) => setFieldValue("picture", acceptedFiles[0])}
                                     >
-                                        {({ getRootProps, getInputProp }) => (
+                                        {({ getRootProps, getInputProps }) => (
                                             <Box
                                                 {...getRootProps()}
-                                                border={`2px solid ${palette.primary.main}`}
+                                                border={`2px dashed ${palette.primary.main}`}
+                                                p="1rem"
                                                 sx={{ "&:hover": { cursor: "pointer" } }}
                                             >
-                                                <input {...getInputProp()} />
+                                                <input {...getInputProps()} />
                                                 {!values.picture ? (
-                                                    <p>Add Picture Her</p>
+                                                    <p>Add Picture Here</p>
                                                 ) : (
                                                     <FlexBetween>
                                                         <Typography>{values.picture.name}</Typography>
@@ -256,7 +257,7 @@ const Form = () => {
                         </Typography>
                     </Box>
                 </form>
-            }}
+            )}
         </Formik>
     );
 }
