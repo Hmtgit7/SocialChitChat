@@ -3,7 +3,7 @@ import Form from './Form';
 
 const LoginPage = () => {
   const theme=useTheme();
-  const isNonMobileScreens= useMediaQuery("max-width:1000px");
+  const isNonMobileScreens= useMediaQuery("(min-width:1000px)");
   return (
     <Box>
       <Box
@@ -17,7 +17,7 @@ const LoginPage = () => {
           fontSize="32px"
           color="primary"
         >
-          SocialCitChat
+          SocialChitChat
         </Typography>
       </Box>
       <Box
