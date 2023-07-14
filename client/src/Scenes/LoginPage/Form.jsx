@@ -2,12 +2,12 @@ import { useState } from "react";
 import {
     Box,
     Button,
-    Textfield,
+    TextField,
     useMediaQuery,
     Typography,
-    useTheme
+    useTheme,
 } from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditedOutlinedIcon";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -15,9 +15,6 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "State";
 import Dropzone from "react-dropzone";
 import FlexBetween from "Components/FlexBetween";
-import { HomeMaxTwoTone } from "@mui/icons-material";
-
-
 
 const registerSchema = yup.object().shape({
     firstName: yup.string().required("required"),
@@ -31,10 +28,10 @@ const registerSchema = yup.object().shape({
 
 const loginSchema = yup.object().shape({
     email: yup.string().email("invalid email").required("required"),
-    password: yup.string().require("required"),
+    password: yup.string().required("required"),
 });
 
-const initiaValuesRegister = {
+const initialValuesRegister = {
     firstName: "",
     lastName: "",
     email: "",
@@ -54,12 +51,54 @@ const Form = () => {
     const { palette } = useTheme();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const isNonMobile = useMediaQuery("(min-width:1000px)");
-    const isLogin = pageType == "Login";
-    const isRegister = pageType = "register";
+    const isNonMobile = useMediaQuery("(min-width:600px)");
+    const isLogin = pageType === "login";
+    const isRegister = pageType === "register";
+
+    const login = async (values, onSubmitProps) => {
+        const loggedInResponse = await fetch("https://localhost:3001/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(values),
+        });
+        const loggedIn = await loggedInResponse.json();
+        onSubmitProps.resetForm();
+        if (loggedIn) {
+            dispatch(
+                setLogin({
+                    user:loggedIn.user,
+                    token: loggedIn.token,
+                })
+            );
+            navigate("/home");
+        }
+    }
+
+    const register = async (values, onSubmitProps) => {
+        // this allows us to send form info with image
+        const formData = new FormData();
+        for (let value in values) {
+            formData.append(values, values[value]);
+        }
+        formData.append('picturePath', values.picture.name);
+
+        const savedUserResponse = await fetch(
+            "https://localhost:3001/auth/register",
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+        const savedUser = await savedUserResponse.json();
+        onSubmitProps.resetForm();
+        if (savedUser) {
+            setPageType("login");
+        }
+    }
 
     const handleFormSubmit = async (values, onSubmitProps) => {
-
+        if (isLogin) await login(values, onSubmitProps);
+        if (isRegister) await registerSchema(values, onSubmitProps);
     }
 
     return (
@@ -78,18 +117,18 @@ const Form = () => {
                 setFieldValue,
                 resetForm
             }) => {
-                <form onSubmit={handleSumbit}>
+                <form onSubmit={handleSubmit}>
                     <Box
                         display="grid"
                         gap="30px"
                         gridTemplateColumn="repeat(4,minmax(0,1fr)"
                         sx={{
-                            "& > div": { gridColumn: isMobile ? undefined : "span 4" },
+                            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                         }}
                     >
                         {isRegister && (
                             <>
-                                <Textfield
+                                <TextField
                                     label="First Name"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
@@ -99,7 +138,7 @@ const Form = () => {
                                     helperText={touched.firstName && errors.firstName}
                                     sx={{ gridColumn: "span 2" }}
                                 />
-                                <Textfield
+                                <TextField
                                     label="Last Name"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
@@ -109,7 +148,7 @@ const Form = () => {
                                     helperText={touched.lastName && errors.lastName}
                                     sx={{ gridColumn: "span 2" }}
                                 />
-                                <Textfield
+                                <TextField
                                     label="Location"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
@@ -119,7 +158,7 @@ const Form = () => {
                                     helperText={touched.location && errors.location}
                                     sx={{ gridColumn: "span 4" }}
                                 />
-                                <Textfield
+                                <TextField
                                     label="Occupation"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
@@ -162,7 +201,7 @@ const Form = () => {
                             </>
                         )
                         }
-                        <Textfield
+                        <TextField
                             label="Email"
                             onBlur={handleBlur}
                             onChange={handleChange}
@@ -172,7 +211,7 @@ const Form = () => {
                             helperText={touched.email && errors.email}
                             sx={{ gridColumn: "span 4" }}
                         />
-                        <Textfield
+                        <TextField
                             label="Password"
                             onBlur={handleBlur}
                             onChange={handleChange}
@@ -213,7 +252,7 @@ const Form = () => {
                                 }
                             }}
                         >
-                            {isLogin?"Don't have an account? Sing Up here.": "Already have an account? Login here"}
+                            {isLogin ? "Don't have an account? Sing Up here." : "Already have an account? Login here"}
                         </Typography>
                     </Box>
                 </form>
